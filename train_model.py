@@ -1,63 +1,100 @@
 
-import pandas as pd
-import joblib
 import os
+import json
+import joblib
+import pandas as pd
 
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    confusion_matrix
+)
 
-# Load dataset
+print("Starting ToxiGuard AI model training...")
+
+# 1. Load dataset
 data = pd.read_csv("dataset.csv")
+data = data.dropna(subset=["comment", "label"])
 
 X = data["comment"].astype(str)
-y = data["label"]
+y = data["label"].astype(int)
 
-# Convert text into numerical features
+# 2. Split dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.25,
+    random_state=42,
+    stratify=y
+)
+
+# 3. Convert text into numerical features
 vectorizer = TfidfVectorizer(
     lowercase=True,
     stop_words="english",
     ngram_range=(1, 2)
 )
 
-X = vectorizer.fit_transform(X)
+X_train_vec = vectorizer.fit_transform(X_train)
+X_test_vec = vectorizer.transform(X_test)
 
-# Split dataset
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y,
-    test_size=0.2,
-    random_state=42,
-    stratify=y
-)
+# 4. Define models
+models = {
+    "Naive Bayes": MultinomialNB(),
+    "Logistic Regression": LogisticRegression(max_iter=1000)
+}
 
-# Train Naive Bayes
-nb_model = MultinomialNB()
-nb_model.fit(X_train, y_train)
+results = {}
 
-# Train Logistic Regression
-lr_model = LogisticRegression(max_iter=1000)
-lr_model.fit(X_train, y_train)
-
-# Evaluate models
-nb_predictions = nb_model.predict(X_test)
-lr_predictions = lr_model.predict(X_test)
-
-print("Naive Bayes Accuracy:",
-      accuracy_score(y_test, nb_predictions))
-
-print("Logistic Regression Accuracy:",
-      accuracy_score(y_test, lr_predictions))
-
-print("\nLogistic Regression Report:")
-print(classification_report(y_test, lr_predictions))
-
-# Save models
 os.makedirs("models", exist_ok=True)
 
-joblib.dump(nb_model, "models/naive_bayes.pkl")
-joblib.dump(lr_model, "models/logistic_regression.pkl")
+# 5. Train and evaluate
+for name, model in models.items():
+
+    print(f"\nTraining {name}...")
+
+    model.fit(X_train_vec, y_train)
+
+    predictions = model.predict(X_test_vec)
+
+    results[name] = {
+        "accuracy": round(float(accuracy_score(y_test, predictions)) * 100, 2),
+        "precision": round(float(precision_score(
+            y_test, predictions, zero_division=0
+        )) * 100, 2),
+        "recall": round(float(recall_score(
+            y_test, predictions, zero_division=0
+        )) * 100, 2),
+        "f1_score": round(float(f1_score(
+            y_test, predictions, zero_division=0
+        )) * 100, 2),
+        "confusion_matrix": confusion_matrix(
+            y_test, predictions, labels=[0, 1]
+        ).tolist()
+    }
+
+    filename = (
+        "naive_bayes.pkl"
+        if name == "Naive Bayes"
+        else "logistic_regression.pkl"
+    )
+
+    joblib.dump(model, f"models/{filename}")
+
+    print(f"{name} Accuracy: {results[name]['accuracy']}%")
+
+# 6. Save vectorizer
 joblib.dump(vectorizer, "models/vectorizer.pkl")
 
-print("\nModels trained and saved successfully!")
+# 7. Save analytics
+with open("models/metrics.json", "w") as file:
+    json.dump(results, file, indent=4)
+
+print("\nAll models trained successfully!")
+print("Model files and analytics saved in models folder.")
