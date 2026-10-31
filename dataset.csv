@@ -1,22 +1,202 @@
-
 comment,label
-"You are a wonderful person",0
-"Thank you for your help",0
-"Have a nice day",0
-"You are very kind",0
-"I appreciate your support",0
-"That is a great idea",0
-"Welcome to our community",0
-"I am happy to see you",0
-"Good morning everyone",0
-"You did an excellent job",0
-"You are stupid",1
-"I hate you",1
-"You are an idiot",1
-"Shut up you fool",1
-"You are worthless",1
-"Nobody likes you",1
-"You are disgusting",1
-"Get lost loser",1
-"You are so annoying",1
-"I will hurt you",1
+"Thank you for helping me today.",0
+"You are a good person.",0
+"You are very helpful.",0
+"You did a wonderful job.",0
+"I appreciate your hard work.",0
+"Your explanation was clear and useful.",0
+"I respectfully disagree with your opinion.",0
+"Let's discuss this calmly.",0
+"That is an interesting perspective.",0
+"I understand where you are coming from.",0
+"Good morning, everyone.",0
+"I hope you have a great day.",0
+"You have made excellent progress.",0
+"Your kindness means a lot.",0
+"Could you please explain your point?",0
+"I would like to hear your suggestion.",0
+"That was a thoughtful response.",0
+"Thank you for sharing your experience.",0
+"Everyone deserves to be treated fairly.",0
+"We can solve this problem together.",0
+"Your presentation was impressive.",0
+"I respect your decision.",0
+"That idea could work well.",0
+"Please let me finish my explanation.",0
+"I think there is another way to solve this.",0
+"You have a lot of potential.",0
+"Your feedback helped me improve.",0
+"I appreciate your honesty.",0
+"Let's keep the conversation respectful.",0
+"That is a fair criticism.",0
+"I disagree, but I respect your view.",0
+"You are doing really well.",0
+"Your efforts are appreciated.",0
+"Could we consider another option?",0
+"Thank you for your patience.",0
+"I hope everything works out for you.",0
+"Your work is creative and original.",0
+"Let's focus on finding a solution.",0
+"That was a useful observation.",0
+"I am happy to help you.",0
+"Your question is completely valid.",0
+"Everyone makes mistakes sometimes.",0
+"I learned something from your explanation.",0
+"Please share more details when possible.",0
+"You handled that situation professionally.",0
+"That comment was unnecessary, but let's move on.",0
+"I would prefer a more constructive discussion.",0
+"Your opinion matters too.",0
+"Let's give each other a chance to speak.",0
+"Have a wonderful weekend.",0
+"Your suggestion deserves consideration.",0
+"I appreciate the time you spent on this.",0
+"That was a brave decision.",0
+"I hope you achieve your goals.",0
+"You are a valuable member of this team.",0
+"Let's avoid making assumptions about others.",0
+"I see your point, although I disagree.",0
+"Your explanation made the topic easier.",0
+"Please correct me if I misunderstood.",0
+"That is not what I intended to say.",0
+"I am open to hearing different opinions.",0
+"Your support made a difference.",0
+"Could you help me understand this issue?",0
+"I think we should be more considerate.",0
+"Thank you for being supportive.",0
+"You are welcome to join our discussion.",0
+"Let's work on improving this together.",0
+"That was a reasonable suggestion.",0
+"I value your contribution.",0
+"Everyone should have equal opportunities.",0
+"I hope you feel better soon.",0
+"Your performance has improved a lot.",0
+"I would like to clarify something.",0
+"Let's not turn this disagreement into an argument.",0
+"Your dedication is admirable.",0
+"I appreciate your different point of view.",0
+"That feedback is useful for future work.",0
+"Please speak respectfully so we can understand each other.",0
+"You have done better than last time.",0
+"I am glad you shared your thoughts.",0
+"That is a good question.",0
+"Let's consider the facts before deciding.",0
+"I don't agree with the decision, but I respect it.",0
+"Your idea is worth exploring.",0
+"Thank you for listening to my concerns.",0
+"Everyone deserves dignity and respect.",0
+"Could we find a compromise?",0
+"You are doing a great job.",0
+"I hope we can resolve this peacefully.",0
+"That was a helpful contribution.",0
+"Your concern is understandable.",0
+"Let's keep personal attacks out of this discussion.",0
+"I appreciate your willingness to cooperate.",0
+"Please give me some time to respond.",0
+"That approach may be more effective.",0
+"I respect people with different backgrounds.",0
+"Your message was encouraging.",0
+"We should judge ideas by their evidence.",0
+"Thank you for your cooperation.",0
+"I disagree with the proposal, not with you as a person.",0
+"You are stupid and worthless.",1
+"Nobody likes you because you are pathetic.",1
+"Your work is complete garbage.",1
+"Shut up, nobody wants to hear you.",1
+"You are an idiot who understands nothing.",1
+"People like you are a waste of space.",1
+"Your opinions are disgusting and worthless.",1
+"You should be ashamed of yourself.",1
+"Everyone would be better off without you.",1
+"Stop acting like a complete fool.",1
+"I will hurt you if you disagree with me.",1
+"You will regret crossing me.",1
+"I am going to find you and attack you.",1
+"Watch your back because I am coming for you.",1
+"I will make sure you suffer for this.",1
+"You deserve to be beaten up.",1
+"I hope someone teaches you a painful lesson.",1
+"Keep talking and I will hurt you.",1
+"I know where you live and you should be afraid.",1
+"You should fear what I will do next.",1
+"Everyone should target that person until they leave.",1
+"Let's keep sending abusive messages until they quit.",1
+"Make fun of them every day so they feel ashamed.",1
+"Keep humiliating that student in front of everyone.",1
+"Spread embarrassing rumors about them to ruin their reputation.",1
+"Nobody should let that person join the group.",1
+"Let's bully them until they stop speaking.",1
+"Send them insults repeatedly so they feel miserable.",1
+"Make sure everyone laughs whenever they enter the room.",1
+"Keep excluding that person just to hurt them.",1
+"People from that community should not be allowed here.",1
+"That religious group does not deserve equal rights.",1
+"People of that nationality are inferior to everyone else.",1
+"That ethnic group should be driven out of our town.",1
+"Members of that community are all disgusting.",1
+"People from that background should never be trusted.",1
+"That group does not deserve the same opportunities.",1
+"Everyone from that community should be treated as an enemy.",1
+"People of that religion should be excluded from society.",1
+"That nationality is full of worthless people.",1
+"Your background makes you inferior to us.",1
+"You are a disgusting loser.",1
+"Only a fool would believe anything you say.",1
+"Your presence makes this place unbearable.",1
+"You are too stupid to understand basic facts.",1
+"Nobody respects your pathetic existence.",1
+"Your face and personality are both unbearable.",1
+"Stop embarrassing yourself with your nonsense.",1
+"You are a failure and always will be.",1
+"Your contributions are completely useless.",1
+"You make everyone miserable.",1
+"I hope you lose everything you care about.",1
+"You deserve nothing but pain.",1
+"I want to see you suffer.",1
+"Someone should attack you for saying that.",1
+"I will destroy your reputation if you challenge me.",1
+"Keep disagreeing and I will come after you.",1
+"You are going to pay for making me angry.",1
+"I will make your life miserable.",1
+"You should be scared to speak against me.",1
+"I am threatening you because you deserve it.",1
+"Your mistakes prove that you are useless.",1
+"Stop talking, you ignorant fool.",1
+"Nobody wants your stupid ideas here.",1
+"You are an embarrassment to your entire team.",1
+"Your existence is a problem for everyone.",1
+"Keep your worthless thoughts to yourself.",1
+"You are nothing but a troublemaker.",1
+"People should laugh at everything you say.",1
+"You are too pathetic to deserve respect.",1
+"Your intelligence is a complete joke.",1
+"Let's harass that user until they delete their account.",1
+"Send threatening messages to make them afraid.",1
+"Keep insulting them whenever they post something.",1
+"Make their life difficult until they leave.",1
+"Share their embarrassing information to humiliate them.",1
+"Tell everyone to attack their account.",1
+"Keep mocking their appearance in public.",1
+"Let's make them feel unwelcome everywhere.",1
+"Deliberately spread lies about them to damage their reputation.",1
+"Target that person with abusive comments every day.",1
+"Your kind of people should stay away from us.",1
+"People like you do not deserve basic respect.",1
+"That community is inferior and should have fewer rights.",1
+"Nobody from your background belongs in this country.",1
+"Your religion makes you less worthy than others.",1
+"That ethnic group should never be accepted here.",1
+"People like you should be denied equal treatment.",1
+"Everyone from that community is disgusting and unwanted.",1
+"Your nationality makes you unworthy of respect.",1
+"People from your group should be removed from our society.",1
+"Stop being such an obnoxious and hateful person.",1
+"Your behavior is cruel and deliberately hurtful.",1
+"Nobody wants to work with someone as hostile as you.",1
+"You keep insulting people because you have no respect.",1
+"Your aggressive comments are ruining this conversation.",1
+"Stop threatening people who disagree with you.",1
+"You are deliberately trying to intimidate everyone.",1
+"Your constant abuse makes this space unsafe.",1
+"Stop attacking people just because they have different opinions.",1
+"Your hateful behavior is unacceptable.",1

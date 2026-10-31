@@ -1,466 +1,643 @@
-# streamlit run app.py
-# Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-# .\venv\Scripts\Activate.ps1
+# .\venv\Scripts\python.exe train_model.py
+# Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass    
+# >> .\venv\Scripts\Activate.ps1
 import streamlit as st
-import joblib
 import pandas as pd
+import joblib
 import json
 import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-# ---------------- PAGE CONFIG ----------------
+# ==========================================
+# PAGE CONFIGURATION
+# ==========================================
 
 st.set_page_config(
     page_title="ToxiGuard AI",
     page_icon="🛡️",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# ---------------- CUSTOM DESIGN ----------------
+# ==========================================
+# CUSTOM CSS
+# ==========================================
 
 st.markdown("""
 <style>
-/* Comment input box */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif;
+}
+
+.stApp {
+    background: linear-gradient(135deg, #080d1c 0%, #10172c 55%, #17132d 100%);
+    color: #f8fafc;
+}
+
+[data-testid="stSidebar"] {
+    background: #0d1426;
+    border-right: 1px solid #29334d;
+}
+
+[data-testid="stSidebar"] * {
+    color: #e2e8f0;
+}
+
+.main-title {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.gradient-text {
+    background: linear-gradient(90deg, #a78bfa, #60a5fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+    color: #94a3b8;
+    font-size: 15px;
+    margin-bottom: 28px;
+}
+
+.section-title {
+    font-size: 23px;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin-top: 20px;
+    margin-bottom: 12px;
+}
+
+.metric-card {
+    background: linear-gradient(145deg, #18233b, #111b30);
+    border: 1px solid #33415e;
+    border-radius: 16px;
+    padding: 20px;
+    min-height: 120px;
+}
+
+.metric-label {
+    color: #a5b4cc;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.metric-value {
+    color: #ffffff;
+    font-size: 30px;
+    font-weight: 800;
+    margin-top: 8px;
+}
+
+.result-card {
+    background: #18233b;
+    border: 1px solid #465575;
+    border-radius: 16px;
+    padding: 22px;
+    margin-top: 18px;
+}
+
 .stTextArea textarea,
 .stTextInput input {
     background-color: #1e293b !important;
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
     border: 1px solid #64748b !important;
-    border-radius: 10px !important;
+    border-radius: 12px !important;
+    caret-color: #ffffff !important;
 }
 
-/* Placeholder text */
 .stTextArea textarea::placeholder,
 .stTextInput input::placeholder {
     color: #cbd5e1 !important;
     -webkit-text-fill-color: #cbd5e1 !important;
 }
 
-/* Text area focus */
 .stTextArea textarea:focus,
 .stTextInput input:focus {
     border: 1px solid #a78bfa !important;
     box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.2) !important;
 }
-.stApp {
-    background-color: #0b1020;
-    color: #f1f5f9;
-}
 
-.block-container {
-    padding-top: 2rem;
-    max-width: 1200px;
-}
-
-h1, h2, h3 {
-    color: #f8fafc !important;
-}
-
-p, label {
-    color: #cbd5e1;
-}
-
-.hero {
-    background: linear-gradient(120deg, #24245a, #172554);
-    padding: 28px;
-    border-radius: 18px;
-    border: 1px solid #394278;
-    margin-bottom: 24px;
-}
-
-.hero h1 {
-    font-size: 38px;
-    margin-bottom: 5px;
-}
-
-.hero p {
-    color: #c7d2fe;
-    font-size: 16px;
-}
-
-div[data-testid="stMetric"] {
-    background: #171f35;
-    border: 1px solid #293653;
-    padding: 18px;
-    border-radius: 14px;
-}
-
-div[data-testid="stMetricLabel"] {
-    color: #cbd5e1;
-}
-
-div.stButton > button {
-    background: #6366f1;
-    color: white;
+.stButton > button {
+    background: linear-gradient(90deg, #7c3aed, #4f46e5);
+    color: white !important;
     border: none;
     border-radius: 10px;
-    min-height: 45px;
-    font-weight: 600;
+    padding: 10px 24px;
+    font-weight: 700;
+    width: 100%;
+    transition: 0.2s;
 }
 
-div.stButton > button:hover {
-    background: #4f46e5;
-    color: white;
+.stButton > button:hover {
+    background: linear-gradient(90deg, #6d28d9, #4338ca);
+    transform: translateY(-1px);
 }
 
-div[data-baseweb="textarea"] textarea {
-    background-color: #171f35;
-    color: white;
+div[data-baseweb="select"] > div {
+    background-color: #1e293b;
+    border-color: #475569;
 }
 
-section[data-testid="stSidebar"] {
-    background-color: #11182b;
+[data-testid="stMetric"] {
+    background: #18233b;
+    border: 1px solid #33415e;
+    padding: 16px;
+    border-radius: 12px;
 }
 
-.result-card {
-    padding: 22px;
-    border-radius: 15px;
-    margin: 12px 0;
-    font-size: 20px;
-    font-weight: bold;
+[data-testid="stMetricLabel"] {
+    color: #cbd5e1 !important;
 }
 
-.safe {
-    background: #123c32;
-    border: 1px solid #16a34a;
-    color: #86efac;
+[data-testid="stMetricValue"] {
+    color: #ffffff !important;
 }
 
-.danger {
-    background: #451e2a;
-    border: 1px solid #ef4444;
-    color: #fca5a5;
+.footer {
+    text-align: center;
+    color: #64748b;
+    padding: 25px 0 5px 0;
+    font-size: 12px;
 }
 
-.small-note {
-    color: #94a3b8;
-    font-size: 13px;
+hr {
+    border-color: #334155;
 }
-
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------- LOAD FILES ----------------
+
+# ==========================================
+# LOAD MODELS
+# ==========================================
 
 @st.cache_resource
 def load_models():
-    nb = joblib.load("models/naive_bayes.pkl")
-    lr = joblib.load("models/logistic_regression.pkl")
+
+    required_files = [
+        "models/naive_bayes.pkl",
+        "models/logistic_regression.pkl",
+        "models/vectorizer.pkl",
+        "models/metrics.json"
+    ]
+
+    missing = [file for file in required_files if not os.path.exists(file)]
+
+    if missing:
+        return None, None, None, None, missing
+
+    nb_model = joblib.load("models/naive_bayes.pkl")
+    lr_model = joblib.load("models/logistic_regression.pkl")
     vectorizer = joblib.load("models/vectorizer.pkl")
 
     with open("models/metrics.json", "r") as f:
         metrics = json.load(f)
 
-    return nb, lr, vectorizer, metrics
+    return nb_model, lr_model, vectorizer, metrics, []
 
 
 try:
-    nb_model, lr_model, vectorizer, metrics = load_models()
-
-except Exception as e:
-    st.error(f"Model loading failed: {e}")
-    st.warning(
-        "Check that all three model files and metrics.json "
-        "exist inside the models folder."
-    )
+    nb_model, lr_model, vectorizer, metrics, missing_files = load_models()
+except Exception as error:
+    st.error(f"Could not load model files: {error}")
     st.stop()
 
-# ---------------- SIDEBAR ----------------
+if missing_files:
+    st.error("Some model files are missing:")
+    for file in missing_files:
+        st.write(f"- {file}")
+    st.info("Run python train_model.py to generate the required files.")
+    st.stop()
 
-st.sidebar.title("🛡️ ToxiGuard AI")
-st.sidebar.caption("Intelligent Content Moderation")
 
-page = st.sidebar.radio(
-    "Navigation",
-    ["Home", "Analytics", "About"]
-)
+# ==========================================
+# SIDEBAR NAVIGATION
+# ==========================================
 
-st.sidebar.divider()
-st.sidebar.success("Machine Learning Models Loaded")
-
-# ---------------- HOME PAGE ----------------
-
-if page == "Home":
+with st.sidebar:
 
     st.markdown("""
-    <div class="hero">
-        <h1>🛡️ ToxiGuard AI</h1>
-        <p>Intelligent Toxic Comment Detection System</p>
-        <p>Making online conversations safer with AI.</p>
+    <div style="text-align:center; padding:15px 0 25px 0;">
+        <div style="font-size:45px;">🛡️</div>
+        <div style="font-size:25px;font-weight:800;color:white;">
+            ToxiGuard <span style="color:#a78bfa;">AI</span>
+        </div>
+        <div style="font-size:11px;color:#94a3b8;">
+            INTELLIGENT TOXICITY DETECTION
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.subheader("Analyze Your Comment")
+    st.markdown("---")
 
-    st.write(
-        "Enter any sentence below to check whether "
-        "it is classified as toxic or non-toxic."
+    page = st.radio(
+        "NAVIGATION",
+        ["🏠 Home", "📊 Analytics", "ℹ️ About"],
+        label_visibility="visible"
     )
 
-    comment = st.text_area(
-        "Your comment",
-        placeholder="Example: You are a wonderful person...",
-        height=130
+    st.markdown("---")
+
+    st.markdown("### Model Information")
+    st.caption("Machine Learning Based")
+    st.caption("TF-IDF Text Vectorization")
+    st.caption("Naive Bayes + Logistic Regression")
+
+    st.markdown("---")
+    st.caption("ToxiGuard AI | College ML Project")
+
+
+# ==========================================
+# HOME PAGE
+# ==========================================
+
+if page == "🏠 Home":
+
+    st.markdown("""
+    <div class="main-title">
+        ToxiGuard <span class="gradient-text">AI</span>
+    </div>
+    <div class="subtitle">
+        Detect toxic language using Machine Learning and Natural Language Processing.
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="section-title">Analyze Your Comment</div>',
+                unsafe_allow_html=True)
+
+    col1, col2 = st.columns([2, 1])
+
+    with col1:
+        selected_model = st.selectbox(
+            "Select Machine Learning Algorithm",
+            ["Naive Bayes", "Logistic Regression"]
+        )
+
+    with col2:
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.caption("Choose a model to analyze your text.")
+
+    user_comment = st.text_area(
+        "Enter your comment",
+        height=160,
+        placeholder="Type or paste your comment here...",
+        key="comment_input"
     )
 
-    algorithm = st.selectbox(
-        "Select Machine Learning Algorithm",
-        ["Naive Bayes", "Logistic Regression"]
-    )
+    analyze = st.button("🔍 Analyze Comment", use_container_width=True)
 
-    if st.button("🔍 Analyze Comment", use_container_width=True):
+    if analyze:
 
-        if not comment.strip():
-            st.warning("Please enter a comment first.")
+        if not user_comment.strip():
+            st.warning("Please enter a comment before analyzing.")
 
         else:
 
-            model = (
-                nb_model
-                if algorithm == "Naive Bayes"
-                else lr_model
-            )
+            if selected_model == "Naive Bayes":
+                model = nb_model
+            else:
+                model = lr_model
 
-            text_vector = vectorizer.transform([comment])
+            input_vector = vectorizer.transform([user_comment.strip()])
 
-            prediction = int(model.predict(text_vector)[0])
+            if input_vector.nnz == 0:
 
-            probabilities = model.predict_proba(text_vector)[0]
-
-            class_index = list(model.classes_).index(prediction)
-
-            confidence = float(probabilities[class_index]) * 100
-
-            st.divider()
-            st.subheader("Analysis Results")
-
-            col1, col2 = st.columns(2)
-
-            with col1:
-
-                if prediction == 1:
-
-                    st.markdown("""
-                    <div class="result-card danger">
-                        ⚠️ TOXIC COMMENT DETECTED
-                    </div>
-                    """, unsafe_allow_html=True)
-
-                else:
-
-                    st.markdown("""
-                    <div class="result-card safe">
-                        ✅ NON-TOXIC COMMENT
-                    </div>
-                    """, unsafe_allow_html=True)
-
-            with col2:
-
-                st.metric(
-                    "Model Confidence",
-                    f"{confidence:.2f}%"
+                st.warning(
+                    "The model does not recognize any words in this comment. "
+                    "Try using different wording."
                 )
 
-            st.caption(
-                "Confidence is the model's estimated probability, "
-                "not its measured accuracy."
-            )
+            else:
 
-            # Probability chart
+                prediction = model.predict(input_vector)[0]
+                probabilities = model.predict_proba(input_vector)[0]
 
-            st.subheader("Prediction Breakdown")
+                classes = list(model.classes_)
 
-            class_names = [
-                "Non-Toxic" if int(c) == 0 else "Toxic"
-                for c in model.classes_
-            ]
+                non_toxic_index = classes.index(0)
+                toxic_index = classes.index(1)
+                predicted_index = classes.index(prediction)
 
-            chart_data = pd.DataFrame({
-                "Category": class_names,
-                "Probability (%)": probabilities * 100
-            })
+                non_toxic_probability = probabilities[non_toxic_index] * 100
+                toxic_probability = probabilities[toxic_index] * 100
+                confidence = probabilities[predicted_index] * 100
 
-            chart_data = chart_data.set_index("Category")
+                if prediction == 1:
+                    result = "TOXIC"
+                    result_color = "#fb7185"
+                    result_icon = "⚠️"
+                    description = "This comment contains language classified as toxic."
+                else:
+                    result = "NON-TOXIC"
+                    result_color = "#34d399"
+                    result_icon = "✅"
+                    description = "This comment is classified as non-toxic."
 
-            st.bar_chart(
-                chart_data,
-                horizontal=True
-            )
+                st.markdown(f"""
+                <div class="result-card">
+                    <div style="font-size:14px;color:#94a3b8;">
+                        ANALYSIS RESULT
+                    </div>
+                    <div style="font-size:30px;font-weight:800;color:{result_color};margin-top:8px;">
+                        {result_icon} {result}
+                    </div>
+                    <div style="font-size:14px;color:#cbd5e1;margin-top:8px;">
+                        {description}
+                    </div>
+                    <div style="font-size:15px;color:white;margin-top:16px;">
+                        Prediction confidence:
+                        <b>{confidence:.2f}%</b>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
 
-            st.caption(
-                "Predictions are based on the trained dataset "
-                "and may not identify every form of harmful language."
-            )
+                st.markdown('<div class="section-title">Class Probabilities</div>',
+                            unsafe_allow_html=True)
 
-# ---------------- ANALYTICS PAGE ----------------
+                p1, p2 = st.columns(2)
 
-elif page == "Analytics":
+                with p1:
+                    st.metric(
+                        "Non-Toxic Probability",
+                        f"{non_toxic_probability:.2f}%"
+                    )
+                    st.progress(float(non_toxic_probability / 100))
+
+                with p2:
+                    st.metric(
+                        "Toxic Probability",
+                        f"{toxic_probability:.2f}%"
+                    )
+                    st.progress(float(toxic_probability / 100))
+
+                # Probability chart
+                probability_df = pd.DataFrame({
+                    "Category": ["Non-Toxic", "Toxic"],
+                    "Probability": [
+                        non_toxic_probability,
+                        toxic_probability
+                    ]
+                }).set_index("Category")
+
+                st.markdown('<div class="section-title">Probability Comparison</div>',
+                            unsafe_allow_html=True)
+
+                st.bar_chart(
+                    probability_df,
+                    horizontal=True
+                )
+
+                st.caption(
+                    "Probabilities are model estimates, not guaranteed "
+                    "measures of correctness. Review comments with care."
+                )
+
+
+# ==========================================
+# ANALYTICS PAGE
+# ==========================================
+
+elif page == "📊 Analytics":
 
     st.markdown("""
-    <div class="hero">
-        <h1>📊 Model Analytics</h1>
-        <p>Performance comparison of machine learning algorithms</p>
+    <div class="main-title">
+        Model <span class="gradient-text">Analytics</span>
+    </div>
+    <div class="subtitle">
+        Evaluate model performance using unseen test data.
     </div>
     """, unsafe_allow_html=True)
 
-    st.subheader("Performance Overview")
+    model_names = {
+        "naive_bayes": "Naive Bayes",
+        "logistic_regression": "Logistic Regression"
+    }
 
-    names = list(metrics.keys())
+    if not all(name in metrics for name in model_names):
+        st.error(
+            "Metrics file does not contain both expected models. "
+            "Please retrain using the updated train_model.py."
+        )
+        st.stop()
 
-    selected = st.selectbox(
-        "Select model for detailed analysis",
-        names
+    selected_metric_model = st.selectbox(
+        "Select model for detailed analytics",
+        ["Naive Bayes", "Logistic Regression"]
     )
 
-    result = metrics[selected]
+    key = (
+        "naive_bayes"
+        if selected_metric_model == "Naive Bayes"
+        else "logistic_regression"
+    )
 
-    # Metrics cards
+    selected_metrics = metrics[key]
+
+    # Metric cards
+    st.markdown('<div class="section-title">Performance Metrics</div>',
+                unsafe_allow_html=True)
 
     c1, c2, c3, c4 = st.columns(4)
 
-    c1.metric("Accuracy", f"{result['accuracy']}%")
-    c2.metric("Precision", f"{result['precision']}%")
-    c3.metric("Recall", f"{result['recall']}%")
-    c4.metric("F1 Score", f"{result['f1_score']}%")
+    metric_items = [
+        ("Accuracy", "accuracy"),
+        ("Precision", "precision"),
+        ("Recall", "recall"),
+        ("F1 Score", "f1")
+    ]
 
-    st.divider()
+    for column, (label, metric_key) in zip(
+        [c1, c2, c3, c4], metric_items
+    ):
 
-    # Model comparison chart
+        value = selected_metrics[metric_key] * 100
 
-    st.subheader("Algorithm Comparison")
+        with column:
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-label">{label}</div>
+                <div class="metric-value">{value:.2f}%</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-    comparison = pd.DataFrame({
-        "Naive Bayes": [
-            metrics["Naive Bayes"]["accuracy"],
-            metrics["Naive Bayes"]["precision"],
-            metrics["Naive Bayes"]["recall"],
-            metrics["Naive Bayes"]["f1_score"]
-        ],
-        "Logistic Regression": [
-            metrics["Logistic Regression"]["accuracy"],
-            metrics["Logistic Regression"]["precision"],
-            metrics["Logistic Regression"]["recall"],
-            metrics["Logistic Regression"]["f1_score"]
-        ]
-    }, index=["Accuracy", "Precision", "Recall", "F1 Score"])
+    # Model comparison
+    st.markdown('<div class="section-title">Model Comparison</div>',
+                unsafe_allow_html=True)
+
+    comparison_data = []
+
+    for model_key, model_name in model_names.items():
+
+        model_metric = metrics[model_key]
+
+        comparison_data.append({
+            "Model": model_name,
+            "Accuracy": model_metric["accuracy"] * 100,
+            "Precision": model_metric["precision"] * 100,
+            "Recall": model_metric["recall"] * 100,
+            "F1 Score": model_metric["f1"] * 100
+        })
+
+    comparison_df = pd.DataFrame(comparison_data).set_index("Model")
 
     st.bar_chart(
-        comparison,
-        horizontal=True,
-        stack=False
+        comparison_df,
+        horizontal=True
     )
 
     # Confusion matrix
+    st.markdown('<div class="section-title">Confusion Matrix</div>',
+                unsafe_allow_html=True)
 
-    st.divider()
-    st.subheader(f"{selected} - Confusion Matrix")
-
-    cm = np.array(result["confusion_matrix"])
+    cm = np.array(selected_metrics["confusion_matrix"])
 
     fig, ax = plt.subplots(figsize=(6, 4))
 
-    fig.patch.set_facecolor("#171f35")
-    ax.set_facecolor("#171f35")
+    fig.patch.set_facecolor("#111b30")
+    ax.set_facecolor("#18233b")
 
-    image = ax.imshow(
-        cm,
-        cmap="Purples"
-    )
+    image = ax.imshow(cm, interpolation="nearest", cmap="Purples")
 
-    ax.set_xticks([0, 1])
-    ax.set_yticks([0, 1])
-
-    ax.set_xticklabels(
-        ["Non-Toxic", "Toxic"],
-        color="white"
-    )
-
-    ax.set_yticklabels(
-        ["Non-Toxic", "Toxic"],
-        color="white"
+    ax.set_title(
+        f"{selected_metric_model} Confusion Matrix",
+        color="white",
+        pad=15
     )
 
     ax.set_xlabel("Predicted Label", color="white")
     ax.set_ylabel("Actual Label", color="white")
 
-    ax.set_title(
-        "Confusion Matrix",
-        color="white",
-        fontsize=14
-    )
+    ax.set_xticks([0, 1])
+    ax.set_yticks([0, 1])
+
+    ax.set_xticklabels(["Non-Toxic", "Toxic"], color="white")
+    ax.set_yticklabels(["Non-Toxic", "Toxic"], color="white")
 
     for i in range(2):
         for j in range(2):
             ax.text(
-                j, i, str(cm[i, j]),
+                j,
+                i,
+                str(cm[i, j]),
                 ha="center",
                 va="center",
                 color="white",
-                fontsize=16,
+                fontsize=15,
                 fontweight="bold"
             )
 
     ax.tick_params(colors="white")
 
+    for spine in ax.spines.values():
+        spine.set_color("#475569")
+
+    fig.colorbar(image, ax=ax)
+
     st.pyplot(fig)
     plt.close(fig)
 
-    st.info(
-        "Metrics are calculated on the held-out test dataset. "
-        "A small dataset can produce unstable performance scores."
+    st.caption(
+        "Rows represent actual classes; columns represent predicted classes. "
+        "The matrix uses label order 0 = Non-Toxic and 1 = Toxic."
     )
 
-# ---------------- ABOUT PAGE ----------------
+    # Dataset information
+    st.markdown('<div class="section-title">Dataset Information</div>',
+                unsafe_allow_html=True)
 
-elif page == "About":
+    if os.path.exists("dataset.csv"):
+
+        dataset = pd.read_csv("dataset.csv")
+
+        total = len(dataset)
+        non_toxic_count = int((dataset["label"] == 0).sum())
+        toxic_count = int((dataset["label"] == 1).sum())
+
+        d1, d2, d3 = st.columns(3)
+
+        d1.metric("Total Comments", total)
+        d2.metric("Non-Toxic Comments", non_toxic_count)
+        d3.metric("Toxic Comments", toxic_count)
+
+    else:
+        st.info("Dataset file was not found.")
+
+
+# ==========================================
+# ABOUT PAGE
+# ==========================================
+
+elif page == "ℹ️ About":
 
     st.markdown("""
-    <div class="hero">
-        <h1>About ToxiGuard AI</h1>
-        <p>AI-powered text classification and content moderation</p>
+    <div class="main-title">
+        About <span class="gradient-text">ToxiGuard AI</span>
+    </div>
+    <div class="subtitle">
+        An AI-powered toxic language detection project.
     </div>
     """, unsafe_allow_html=True)
 
-    st.subheader("Project Objective")
-
-    st.write("""
-    ToxiGuard AI is a machine learning application designed
-    to classify written comments into toxic and non-toxic
-    categories using Natural Language Processing.
-    """)
-
-    st.subheader("Technologies Used")
-
     st.markdown("""
-    - Python
-    - Streamlit
-    - Pandas
-    - Scikit-learn
-    - TF-IDF Vectorization
-    - Matplotlib
-    """)
+    ### 🛡️ Project Overview
 
-    st.subheader("Algorithms")
+    ToxiGuard AI is a machine learning-based application designed
+    to classify text comments into two categories:
 
-    st.markdown("""
-    **Naive Bayes:** A probabilistic algorithm used for text classification.
+    - **Toxic:** Comments containing insulting, abusive or harmful language.
+    - **Non-Toxic:** Comments that do not fall into the toxic category.
 
-    **Logistic Regression:** A classification algorithm used to estimate
-    the probability of a text belonging to a category.
-    """)
+    ### ⚙️ Technologies Used
 
-    st.subheader("Working Process")
+    | Technology | Purpose |
+    |---|---|
+    | Python | Programming language |
+    | Streamlit | Interactive web application |
+    | Pandas | Dataset handling |
+    | Scikit-learn | Machine learning |
+    | TF-IDF | Text feature extraction |
+    | Naive Bayes | Text classification |
+    | Logistic Regression | Text classification |
+    | Matplotlib | Data visualization |
+    | Joblib | Model serialization |
 
-    st.write("""
-    1. User enters a comment.
-    2. Text is converted into numerical features using TF-IDF.
-    3. The selected machine learning model analyses the features.
-    4. The application displays the predicted category and probability.
-    """)
+    ### 🧠 How It Works
 
-# ---------------- FOOTER ----------------
+    1. User enters a text comment.
+    2. TF-IDF converts the comment into numerical features.
+    3. The selected machine learning model analyzes the features.
+    4. The application displays the predicted category and class probabilities.
+    5. Analytics displays evaluation results from the test dataset.
 
-st.sidebar.divider()
-st.sidebar.caption("ToxiGuard AI | College ML Project")
+    ### 🎯 Project Objective
+
+    The objective is to demonstrate how Natural Language Processing
+    and Machine Learning can help identify potentially toxic language
+    in online discussions.
+
+    ### ⚠️ Disclaimer
+
+    This is an educational prototype. Its predictions can be incorrect,
+    and it should not be used as the sole basis for moderation decisions.
+    """, unsafe_allow_html=False)
+
+
+# ==========================================
+# FOOTER
+# ==========================================
+
+st.markdown("""
+<div class="footer">
+    🛡️ ToxiGuard AI | Machine Learning Project
+    <br>
+    Built with Python, Streamlit and Scikit-learn
+</div>
+""", unsafe_allow_html=True)
